@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "parse:word": "tsx scripts/parse-word.ts"
+    "parse:word": "tsx scripts/parse-word.ts",
+    "parse:guide": "tsx scripts/parse-law-guide-doc.ts",
+    "build:statute": "tsx scripts/build-statute-from-dataset.ts"
   },
   "dependencies": {
     "fuse.js": "^7.0.0",
@@ -15,6 +17,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
     "zod": "^3.24.0"
   },
   "devDependencies": {
