@@ -1,4 +1,8 @@
-# lawhelp — 규칙형 법령 질의 안내 (MVP)
+# lawhelp — 규칙형 법령 질의 안내 (v1.0.0)
+
+## ENV
+<img width="672" height="868" alt="save" src="https://github.com/user-attachments/assets/10967de5-2525-488c-b772-195114a9aee5" />
+
 
 생성형 AI(LLM) 없이 **JSON 데이터**와 **규칙·점수 기반 매칭**만으로 답변을 구성하는 주택임대차보호법 안내용 웹앱입니다. **법률 자문이 아니며**, 데이터에 실린 문구를 조합해 안내합니다.
 
