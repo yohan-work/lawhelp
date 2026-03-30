@@ -16,6 +16,11 @@ npm run dev
 
 브라우저에서 [http://localhost:3000](http://localhost:3000) 을 엽니다.
 
+### 정적 안내 페이지
+
+- **`/articles`** — `data/source/housing-rental-protection.json`에 정의된 조문 목록, 키워드, 데이터에 담긴 요약 원문(접기), 공식 법령 링크
+- **`/guide`** — `docs/easy-interpretation.md`를 렌더링한 일반인용 쉬운 해설(면책 포함). 원고는 Git으로 수정하면 됩니다.
+
 ## 빌드
 
 ```bash
@@ -28,6 +33,11 @@ npm start
 | 경로 | 역할 |
 |------|------|
 | `app/page.tsx` | 채팅형 메인 UI (클라이언트) |
+| `app/articles/page.tsx` | 조항 목록(소스 JSON 기준) |
+| `app/guide/page.tsx` | 쉬운 해설(`docs/easy-interpretation.md`) |
+| `docs/easy-interpretation.md` | 쉬운 해설 원고 |
+| `components/SiteNav.tsx` | 전역 내비게이션 |
+| `components/MarkdownBody.tsx` | 마크다운 렌더 스타일 |
 | `app/api/chat/route.ts` | 질문 POST → 매칭 결과 JSON |
 | `components/` | 말풍선, 응답 카드, 예시 질문 |
 | `lib/match/` | 정규화, 점수, 매칭 엔진 |
@@ -90,7 +100,7 @@ npm run parse:word -- ./dataset/문서.doc ./data/source
 
 ## 스택
 
-Next.js 15 (App Router), TypeScript, Tailwind CSS, zod, fuse.js(퍼지 보조), mammoth, word-extractor, rtf-parser(실패 시 폴백).
+Next.js 15 (App Router), TypeScript, Tailwind CSS, zod, react-markdown, fuse.js(퍼지 보조), mammoth, word-extractor, rtf-parser(실패 시 폴백).
 
 ## 면책
 
