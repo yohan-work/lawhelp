@@ -6,6 +6,7 @@ export type MatchedArticleSnippet = {
   articleNo: string;
   title?: string;
   fullText: string;
+  easyInterpretation?: string;
 };
 
 export type ChatApiResponse = {
