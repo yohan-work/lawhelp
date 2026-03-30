@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { formatArticleHeading } from "@/lib/formatArticleHeading";
 import type { ChatApiResponse } from "@/types/api";
+
+const LONG_ORIGINAL_THRESHOLD = 400;
 
 type Props = {
   response: ChatApiResponse;
@@ -9,9 +11,6 @@ type Props = {
 };
 
 export function AnswerCard({ response, onRelatedClick }: Props) {
-  const [openArticles, setOpenArticles] = useState<Record<string, boolean>>({});
-  const [showRawBlock, setShowRawBlock] = useState(false);
-
   if (!response.matched) {
     return (
       <div className="rounded-xl border border-amber-200 bg-amber-50/90 px-4 py-3 text-sm text-amber-950">
@@ -66,36 +65,43 @@ export function AnswerCard({ response, onRelatedClick }: Props) {
 
       {articles.length > 0 && (
         <div className="mt-4 border-t border-slate-100 pt-4">
-          <p className="text-xs font-medium text-slate-500">관련 조문</p>
-          <ul className="mt-2 space-y-2">
-            {articles.map((a) => (
-              <li key={a.articleNo} className="rounded-lg bg-slate-50 px-3 py-2">
-                <button
-                  type="button"
-                  className="flex w-full items-center justify-between text-left font-medium text-slate-800"
-                  onClick={() =>
-                    setOpenArticles((o) => ({
-                      ...o,
-                      [a.articleNo]: !o[a.articleNo],
-                    }))
-                  }
-                  aria-expanded={!!openArticles[a.articleNo]}
+          <p className="text-xs font-medium text-slate-500">관련 조문 · 원문(데이터셋)</p>
+          <ul className="mt-2 space-y-3">
+            {articles.map((a) => {
+              const long = a.fullText.length > LONG_ORIGINAL_THRESHOLD;
+              return (
+                <li
+                  key={a.articleNo}
+                  className="rounded-lg border border-slate-100 bg-slate-50/90 px-3 py-2"
                 >
-                  <span>
-                    제{a.articleNo}조
-                    {a.title ? ` (${a.title})` : ""}
-                  </span>
-                  <span className="text-xs text-slate-500">
-                    {openArticles[a.articleNo] ? "접기" : "원문 보기"}
-                  </span>
-                </button>
-                {openArticles[a.articleNo] && (
-                  <p className="mt-2 whitespace-pre-wrap text-xs leading-relaxed text-slate-600">
+                  <p className="font-medium text-slate-800">
+                    {formatArticleHeading(a.articleNo, a.title)}
+                  </p>
+                  <p className="mt-1 text-xs font-medium text-slate-500">원문(데이터셋)</p>
+                  <p
+                    className={`mt-1.5 whitespace-pre-wrap text-xs leading-relaxed text-slate-700 ${
+                      long ? "max-h-56 overflow-y-auto pr-1" : ""
+                    }`}
+                  >
                     {a.fullText}
                   </p>
-                )}
-              </li>
-            ))}
+                  {long && (
+                    <p className="mt-1 text-[11px] text-slate-400">긴 원문은 위 영역 안에서 스크롤할 수 있습니다.</p>
+                  )}
+                  {a.easyInterpretation && (
+                    <div className="mt-3 border-t border-slate-200/80 pt-3">
+                      <p className="text-xs font-medium text-emerald-800">쉬운 해석</p>
+                      <p className="mt-1.5 whitespace-pre-wrap text-xs leading-relaxed text-emerald-950/90">
+                        {a.easyInterpretation}
+                      </p>
+                      <p className="mt-1.5 text-[11px] text-emerald-800/70">
+                        일반 이해용이며 법률 자문이 아닙니다.
+                      </p>
+                    </div>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}
@@ -108,31 +114,6 @@ export function AnswerCard({ response, onRelatedClick }: Props) {
               <li key={i}>{c}</li>
             ))}
           </ul>
-        </div>
-      )}
-
-      {articles.length > 0 && (
-        <div className="mt-4">
-          <button
-            type="button"
-            className="text-xs font-medium text-slate-600 underline decoration-slate-300 underline-offset-2 hover:text-slate-900"
-            onClick={() => setShowRawBlock((v) => !v)}
-            aria-expanded={showRawBlock}
-          >
-            {showRawBlock ? "원문 한꺼번에 접기" : "원문 한꺼번에 펼치기"}
-          </button>
-          {showRawBlock && (
-            <div className="mt-2 max-h-64 overflow-y-auto rounded border border-slate-200 bg-slate-50 p-3 text-xs text-slate-700">
-              {articles.map((a) => (
-                <section key={a.articleNo} className="mb-3 last:mb-0">
-                  <h4 className="font-semibold text-slate-800">
-                    제{a.articleNo}조 {a.title ?? ""}
-                  </h4>
-                  <p className="mt-1 whitespace-pre-wrap">{a.fullText}</p>
-                </section>
-              ))}
-            </div>
-          )}
         </div>
       )}
 
