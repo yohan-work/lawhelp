@@ -2,55 +2,6 @@
 
 생성형 AI(LLM) 없이 **JSON 데이터**와 **규칙·점수 기반 매칭**만으로 답변을 구성하는 주택임대차보호법 안내용 웹앱입니다. **법률 자문이 아니며**, 데이터에 실린 문구를 조합해 안내합니다.
 
-## 요구 사항
-
-- Node.js 20 이상 권장
-- npm
-
-## 로컬 실행
-
-```bash
-npm install
-npm run dev
-```
-
-브라우저에서 [http://localhost:3000](http://localhost:3000) 을 엽니다.
-
-### 정적 안내 페이지
-
-- **`/articles`** — `data/source/housing-rental-protection.json`에 정의된 조문 목록, 키워드, 데이터에 담긴 요약 원문(접기), 공식 법령 링크
-- **`/guide`** — `docs/easy-interpretation.md`를 렌더링한 일반인용 쉬운 해설(면책 포함). 원고는 Git으로 수정하면 됩니다.
-
-## 빌드
-
-```bash
-npm run build
-npm start
-```
-
-## 프로젝트 구조
-
-| 경로 | 역할 |
-|------|------|
-| `app/page.tsx` | 채팅형 메인 UI (클라이언트) |
-| `app/articles/page.tsx` | 조항 목록(소스 JSON 기준) |
-| `app/guide/page.tsx` | 쉬운 해설(`docs/easy-interpretation.md`) |
-| `docs/easy-interpretation.md` | 쉬운 해설 원고 |
-| `components/SiteNav.tsx` | 전역 내비게이션 |
-| `components/MarkdownBody.tsx` | 마크다운 렌더 스타일 |
-| `app/api/chat/route.ts` | 질문 POST → 매칭 결과 JSON |
-| `components/` | 말풍선, 응답 카드, 예시 질문 |
-| `lib/match/` | 정규화, 점수, 매칭 엔진 |
-| `lib/data/` | zod 스키마, JSON 로드 |
-| `data/source/` | 법령 원문·조문 **앱용** JSON (`housing-rental-protection.json`) |
-| `data/source/raw/` | 워드 파싱 **raw** (단락 보존) |
-| `data/source/generated/` | 스크립트 **자동 생성** cleaned 초안 (`*.generated.json`) |
-| `data/response/intents.json` | intent·답변·키워드·패턴 |
-| `data/dictionaries/` | 동의어, 주제→조문 맵 |
-| `scripts/parse-word.ts` | 워드/RTF/docx → raw + generated |
-| `scripts/parse-rules/` | 법령별 조문 분리 패턴 등 설정 |
-| `types/` | TypeScript 타입 |
-
 매칭은 **서버(API Route)** 에서만 수행합니다. 클라이언트에 전체 JSON을 내리지 않습니다.
 
 ## 워드 문서 → JSON
@@ -75,6 +26,20 @@ npm run parse:word -- ./dataset/문서.doc ./data/source
 - raw JSON을 수동으로 고친 뒤 cleaned를 편집하거나
 - 국가법령정보센터 등에서 구조화된 원문을 참고해 `data/source/*.json`을 직접 유지합니다.
 
+## 평문 법령(`dataset/data`) → 원문 JSON 일괄 반영
+
+국가법령정보센터 등에서 붙여 넣은 **줄 단위 평문**이 `dataset/data`(확장자 없음 가능)에 있을 때, 조문·부칙을 나눠 앱용 파일을 **덮어씁니다**.
+
+```bash
+npm run build:statute
+# 또는: npx tsx scripts/build-statute-from-dataset.ts ./dataset/data
+```
+
+- **출력**: `data/source/housing-rental-protection.json`, `data/guide/housing-rental-guide.json`
+- 각 조는 `lines` 한 행에 전체 원문이 들어가고, 쉬운 해석 칸은 비어 있습니다(이후 워드 `parse:guide -- --write-guide` 등으로 보강 가능).
+- 부칙은 `articleNo: "부칙"` 한 항목으로 붙습니다. 부칙 안의 `제1조(시행일)` 등은 조문으로 쪼개지 않습니다.
+- 실행 후 `data/response/intents.json`의 `relatedArticleNos`가 실제 조번과 맞는지, 필요하면 `topic-map.json`도 함께 점검하세요.
+
 ## 데이터 추가 방법
 
 1. **`data/source/<lawId>.json`**  
@@ -88,20 +53,23 @@ npm run parse:word -- ./dataset/문서.doc ./data/source
 
 법령별 전용 하드코딩은 최소화했고, `lawId`·파일 분리로 다른 법령을 추가할 수 있습니다.
 
-## 무료 배포 (예: Vercel)
+## 쉬운 해설 페이지(`/guide`) — 워드 → JSON
 
-- 저장소를 연결한 뒤 **Framework Preset: Next.js**, Build: `npm run build`, Output: 기본값.
-- 환경 변수는 MVP 기준 필수 없음.
-- `data/` JSON은 저장소에 포함되면 그대로 배포됩니다.
+1. 워드 작성 규칙: `docs/word-template-law-guide.md` (조문당 `쉬운 해석:` 한 번, 또는 줄 단위 `<<<원문>>>` / `<<<쉬운>>>` 반복).
+2. 파싱:
 
-## dataset 폴더와 Git
+```bash
+npm run parse:guide -- ./dataset/문서.doc
+```
 
-용량·저작권 정책에 따라 `dataset/` 원본 워드를 저장소에 넣지 않을 수 있습니다. 이 경우 `.gitignore`에 `dataset/`을 추가하고, 팀 내에서는 별도로 원본을 공유하세요.
+- `data/source/raw/<lawId>-guide-raw.json`, `data/source/generated/<lawId>-from-guide.generated.json` 이 생성됩니다. `parseWarnings`로 누락·마커 오류를 확인하세요.
 
-## 스택
+3. 앱이 읽는 가이드 데이터로 바로 쓰려면:
 
-Next.js 15 (App Router), TypeScript, Tailwind CSS, zod, react-markdown, fuse.js(퍼지 보조), mammoth, word-extractor, rtf-parser(실패 시 폴백).
+```bash
+npm run parse:guide -- ./dataset/문서.doc --write-guide
+```
 
-## 면책
+- `data/guide/housing-rental-guide.json` 이 갱신됩니다. **검수 후 커밋**하면 배포 환경에도 동일하게 반영됩니다.
 
-이 프로젝트는 정보 안내용이며 법률 자문을 제공하지 않습니다. 항상 국가법령정보센터 등 **공식 원문**과 전문가 의견을 확인하세요.
+4. 정적 페이지: `/guide` 는 위 JSON만 사용합니다. `docs/easy-interpretation.md` 는 참고용(과거 수동 정리)입니다.
