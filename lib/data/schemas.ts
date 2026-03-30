@@ -4,6 +4,7 @@ export const lawArticleSchema = z.object({
   articleNo: z.string(),
   title: z.string().optional(),
   fullText: z.string(),
+  easyInterpretation: z.string().optional(),
   clauses: z.array(z.string()).optional(),
   keywords: z.array(z.string()).optional(),
   relatedArticleNos: z.array(z.string()).optional(),
@@ -55,4 +56,26 @@ export const synonymDictionarySchema = z.object({
 
 export const topicMapSchema = z.object({
   topics: z.record(z.array(z.string())),
+});
+
+export const guideLineSchema = z.object({
+  fullText: z.string(),
+  easyInterpretation: z.string(),
+});
+
+export const guideArticleSchema = z.object({
+  articleNo: z.string(),
+  title: z.string().optional(),
+  lines: z.array(guideLineSchema).min(1),
+  parseWarnings: z.array(z.string()).optional(),
+});
+
+export const lawGuideDatasetSchema = z.object({
+  lawId: z.string(),
+  lawName: z.string(),
+  effectiveDate: z.string().optional(),
+  sourceUrl: z.string().optional(),
+  disclaimer: z.string(),
+  preamble: z.string().optional(),
+  articles: z.array(guideArticleSchema),
 });

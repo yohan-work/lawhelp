@@ -106,6 +106,7 @@ export function runMatchEngine(
       articleNo: a!.articleNo,
       title: a!.title,
       fullText: a!.fullText,
+      easyInterpretation: a!.easyInterpretation,
     }));
 
   return {
