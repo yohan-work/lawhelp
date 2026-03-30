@@ -1,0 +1,8 @@
+{
+  "lawId": "housing-rental-protection",
+  "lawName": "주택임대차보호법",
+  "effectiveDate": "",
+  "sourceUrl": "https://www.law.go.kr/법령/주택임대차보호법",
+  "articleHeadingPattern": "제\\s*(\\d+(?:의\\d+)?)\\s*조",
+  "notes": "워드 본문에 '제N조' 형식이 일관되게 들어가야 조문 단위 분리가 됩니다. 불규칙하면 raw JSON을 수동으로 고친 뒤 clean-source 단계를 쓰세요."
+}
