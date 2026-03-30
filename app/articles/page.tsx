@@ -3,6 +3,7 @@ import path from "path";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { lawSourceDatasetSchema } from "@/lib/data/schemas";
+import { formatArticleHeading, formatRelatedArticleRef } from "@/lib/formatArticleHeading";
 
 export const metadata: Metadata = {
   title: "조항 목록 — 주택임대차보호법",
@@ -66,8 +67,7 @@ export default async function ArticlesPage() {
             className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
           >
             <h2 className="text-base font-semibold text-slate-900">
-              제{a.articleNo}조
-              {a.title ? ` (${a.title})` : ""}
+              {formatArticleHeading(a.articleNo, a.title)}
             </h2>
             {a.keywords && a.keywords.length > 0 && (
               <p className="mt-2 text-xs text-slate-500">
@@ -81,19 +81,29 @@ export default async function ArticlesPage() {
                 {a.relatedArticleNos.map((no, i) => (
                   <span key={no}>
                     {i > 0 ? ", " : ""}
-                    제{no}조
+                    {formatRelatedArticleRef(no)}
                   </span>
                 ))}
               </p>
             )}
-            <details className="mt-3">
-              <summary className="cursor-pointer text-sm font-medium text-slate-700 hover:text-slate-900">
-                데이터에 담긴 원문(요약) 보기
-              </summary>
-              <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-slate-700">
+            <div className="mt-3 rounded-lg border border-slate-100 bg-slate-50/80 p-3">
+              <p className="text-xs font-medium text-slate-500">원문(데이터셋)</p>
+              <p className="mt-1.5 whitespace-pre-wrap text-sm leading-relaxed text-slate-800">
                 {a.fullText}
               </p>
-            </details>
+            </div>
+            {a.easyInterpretation && (
+              <div className="mt-3 rounded-lg border border-emerald-100 bg-emerald-50/50 p-3">
+                <p className="text-xs font-medium text-emerald-800">쉬운 해석</p>
+                <p className="mt-1.5 whitespace-pre-wrap text-sm leading-relaxed text-emerald-950/90">
+                  {a.easyInterpretation}
+                </p>
+                <p className="mt-2 text-[11px] leading-relaxed text-emerald-800/70">
+                  일반 이해를 돕는 설명이며, 법률 자문이 아닙니다. 실제 적용은 원문·사실관계에 따라
+                  달라질 수 있습니다.
+                </p>
+              </div>
+            )}
           </li>
         ))}
       </ol>
